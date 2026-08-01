@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>rappdex</title>
+<meta name="description" content="A pocket index of the RAPP ecosystem, built entirely off rapp-mapp. Works offline.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#141413">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="rappdex">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">
+    <span class="spike">&#10033;</span>
+    <h1>rappdex</h1>
+  </div>
+  <div class="src" id="src" title="where the data came from">loading&hellip;</div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab is-on" data-view="dex" role="tab">Dex</button>
+  <button class="tab" data-view="allele" role="tab">Pets</button>
+  <button class="tab" data-view="words" role="tab">The words</button>
+</nav>
+
+<!-- ───────────────────────── DEX ───────────────────────── -->
+<main id="view-dex" class="view is-on">
+  <div class="filters">
+    <input id="q" type="search" placeholder="Search repo, layer, what it houses&hellip;" autocomplete="off">
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="count" id="count"></div>
+  <ol class="grid" id="grid"></ol>
+  <section class="gaps" id="gaps"></section>
+</main>
+
+<!-- ────────────────────── PETS / ALLELES ────────────────────── -->
+<main id="view-allele" class="view">
+  <p class="lede">
+    A pet is <b>not a record</b> &mdash; it is your alleles drawn. And an allele is
+    derived from a rappid&rsquo;s mint-once tail, never stored and never assigned.
+    So the pet cannot be re-rolled, faked, or edited: same tail, same pet, on
+    every machine, forever. Everything below is computed on your device.
+  </p>
+
+  <label class="lbl" for="tail">rappid tail (64 hex)</label>
+  <input id="tail" type="text" spellcheck="false" autocapitalize="off" autocomplete="off"
+         placeholder="paste a 64-hex tail, or plant one">
+  <div class="row">
+    <button id="roll" class="btn">Plant an organism</button>
+    <button id="clear" class="btn ghost">Clear</button>
+  </div>
+
+  <div id="petstage" class="petstage"></div>
+  <div id="alleles" class="alleles"></div>
+
+  <details class="verify">
+    <summary>Verify this yourself</summary>
+    <p>This page implements the reference exactly. Run it against any tail:</p>
+    <pre><code>import hashlib
+def allele(trait, tail, bits=16):
+    h = hashlib.sha256(f"rapp/1:allele:{trait}\n{tail}".encode()).hexdigest()
+    return int(h[:bits // 4], 16)</code></pre>
+    <p class="fine">
+      Only <code>glow</code> is tiered, because the spec&rsquo;s bands are defined over
+      16 bits. Bands are <b>exclusive</b>, so the odds are the band widths:
+      common <code>&lt; 0xC000</code> (3 in 4) &middot;
+      uncommon <code>0xC000&ndash;0xEFFF</code> (~1 in 5) &middot;
+      rare <code>0xF000&ndash;0xFEFF</code> (~1 in 17) &middot;
+      ultra <code>0xFF00&ndash;0xFFFE</code> (~1 in 257) &middot;
+      mythic <code>0xFFFF</code> (1 in 65,536).
+      <code>coat</code>, <code>tempo</code> and <code>voice</code> are 8-bit variety
+      &mdash; they colour the pet, they do not rank it.
+    </p>
+    <p class="fine">
+      Not a token: an allele is a property of an identity, and identity is
+      mint-once, so there is nothing to transfer. Not a gate: a mythic coat
+      buys you a mythic coat and nothing else. Fusion (the Neon mechanic) is
+      specified but <b>not implemented</b> &mdash; it needs &sect;10 signatures and
+      estate-owner authority, and claiming it works before signing exists would
+      be a false-authority defect.
+    </p>
+  </details>
+</main>
+
+<!-- ──────────────────────── WORDS ───────────────────────── -->
+<main id="view-words" class="view">
+  <div id="words"></div>
+</main>
+
+<footer class="foot">
+  <p>
+    Built entirely off <a href="https://github.com/kody-w/rapp-mapp">kody-w/rapp-mapp</a>.
+    The map is a <b>map</b>, not a registry &mdash; it confers no trust and establishes
+    no ownership. Protocol authority is
+    <a href="https://github.com/kody-w/rapp-1">rapp-1</a>; governance authority is
+    <a href="https://github.com/kody-w/RAPP">RAPP/CONSTITUTION.md</a>.
+  </p>
+  <p class="fine" id="offline-note"></p>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
