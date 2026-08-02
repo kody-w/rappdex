@@ -20,6 +20,7 @@
 
 import { webcrypto } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 
 import { alleles, TRAITS, TIERS, tierOf } from './allele.js';
@@ -36,6 +37,8 @@ const check = (name, cond, detail = '') => {
 };
 const group = (t) => console.log(`\n\x1b[1m${t}\x1b[0m`);
 const read = (f) => readFileSync(new URL(f, import.meta.url), 'utf8');
+/** A deterministic stand-in for a minted tail, for sweeping the space. */
+const sha = (s) => createHash('sha256').update(s).digest('hex');
 
 const TAIL_A = 'a3f1c09e77b4d2856e0a19fc3b8d40725ce6119af8203d4b6ea75c918d0f3e2b';
 const TAIL_B = 'f7d20b8e1c94a635d0e8237fb1ac95604e2d81f39c7a06b5e4183da29c60f7b1';
@@ -256,6 +259,58 @@ check('the vendored genetics is unmodified from the cabinet', (() => {
   check('golden vector: known tail still yields its known organism',
     c.id === GOLDEN.id && c.title === GOLDEN.title,
     `got ${c.id} / ${c.title}, expected ${GOLDEN.id} / ${GOLDEN.title}`);
+}
+
+/* ── 6. fusion ────────────────────────────────────────────────── */
+group('Four organisms become one, honestly');
+
+{
+  const { fuse, verifyDescent, costOfGeneration, FUSE_ARITY } = await import('./fuse.js');
+  const T = (s) => sha(String(s));
+  const P = [T('p1'), T('p2'), T('p3'), T('p4')];
+  const child = await fuse(P);
+
+  check('a fusion produces an ordinary 64-hex tail', /^[0-9a-f]{64}$/.test(child), child);
+  check('fusion is a property of the set, not the order',
+    child === await fuse([P[3], P[0], P[2], P[1]]));
+  check('a descent claim verifies', await verifyDescent(child, P));
+  check('a false descent claim does not', !(await verifyDescent(child, [T('x'), P[1], P[2], P[3]])));
+  check('generation cost is 4^n', [costOfGeneration(1), costOfGeneration(2), costOfGeneration(3)].join() === '4,16,64');
+
+  let dupeRejected = false;
+  try { await fuse([P[0], P[0], P[1], P[2]]); } catch { dupeRejected = true; }
+  check('an organism cannot stand in for four', dupeRejected,
+    'self-fusion would make the whole cost fictional');
+
+  let arityRejected = false;
+  try { await fuse([P[0], P[1], P[2]]); } catch { arityRejected = true; }
+  check(`fusion requires exactly ${FUSE_ARITY}`, arityRejected);
+
+  // The child is derived by the ORDINARY allele function, so it must be an
+  // ordinary organism in every respect.
+  const kid = petOf(await alleles(child));
+  check('the child is an ordinary organism', !!kid.label && !!kid.shape);
+  const kidCart = await cartridgeOf(child, await alleles(child));
+  check('the child is a valid hologram', validateCartridge(kidCart).length === 0);
+
+  // THE doctrine test. If fusion ever shifted the tier distribution it would be
+  // handing out rarity that nobody minted for — the one thing this project
+  // exists to prevent. Compare fused children against fresh mints.
+  const N = 2000;
+  const tally = async (tails) => {
+    const c = {};
+    for (const t of tails) { const a = await alleles(t); c[a.glow.tier.name] = (c[a.glow.tier.name] || 0) + 1; }
+    return c;
+  };
+  const fresh = await tally(Array.from({ length: N }, (_, i) => T('fresh' + i)));
+  const kids = [];
+  for (let i = 0; i < N; i++) kids.push(await fuse([T('a' + i), T('b' + i), T('c' + i), T('d' + i)]));
+  const fused = await tally(kids);
+  const drift = ['common', 'uncommon', 'rare', 'ultra'].map(
+    (k) => Math.abs((fresh[k] || 0) - (fused[k] || 0)) / N);
+  check('fusion does not invent rarity — fused children match fresh mints',
+    drift.every((d) => d < 0.03),
+    `tier drift ${drift.map((d) => (d * 100).toFixed(1) + '%').join(', ')} (must stay under 3%)`);
 }
 
 console.log(`\n  ${pass} passed, ${fail} failed\n`);
