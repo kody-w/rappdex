@@ -1,8 +1,15 @@
 /* ─────────────────────────────────────────────────────────────
-   pets.js — rapp-pets/0.1
+   pets.js — rapp-pets/0.2 · the 2D view of a holographic organism
 
-   A pet is not a record. It is the *rendering* of an organism's alleles,
-   and its alleles are a pure function of a mint-once rappid tail. So:
+   A pet is not a record, and it is no longer flat. Its body is a
+   `hologram-cartridge/1.0` genome (see holo.js) that any hologram player
+   can render in 3D. What lives here is the *portrait* — a fast 2D read of
+   the same organism, drawn FROM that genome so the two can never disagree.
+
+     genome  → the organism (holo.js, portable, player-agnostic)
+     petOf   → the portrait  (this file, a projection of the genome)
+
+   Its alleles remain a pure function of a mint-once rappid tail. So:
 
      same tail  →  same pet, on every machine, forever
      no server  →  nothing to trust, nothing to re-roll
@@ -21,77 +28,65 @@
    Only `glow` is tiered, because only 16-bit values have bands in the spec.
    ───────────────────────────────────────────────────────────── */
 
-/* 16 colourways. Two tones each: body, and the belly/ear inner. */
-const COATS = [
-  ['#CC785C', '#F2D9CE', 'ember'],
-  ['#8C6A4F', '#E8D6C3', 'loam'],
-  ['#5B7B6E', '#D6E3DC', 'fern'],
-  ['#41607F', '#D2DFEA', 'tide'],
-  ['#7A5C86', '#E2D6E8', 'plum'],
-  ['#B0483F', '#F0D2CE', 'rust'],
-  ['#C9A227', '#F3E7BE', 'honey'],
-  ['#3F5D4A', '#D3E0D6', 'moss'],
-  ['#6E6A66', '#E1DEDA', 'ash'],
-  ['#2E3A46', '#CFD8E0', 'slate'],
-  ['#A8763F', '#F0DDC2', 'amber'],
-  ['#57493F', '#DFD4C8', 'bark'],
-  ['#7E8C4B', '#E6EBCF', 'sage'],
-  ['#9B5A7A', '#EBD5E0', 'thistle'],
-  ['#3C7071', '#D0E4E4', 'lagoon'],
-  ['#141413', '#CFCECB', 'ink'],
-];
+import { genomeOf } from './holo.js';
 
-const PATTERNS = ['solid', 'spotted', 'striped', 'patched'];
-const SPECIES = ['tuft', 'lop', 'quill', 'moth', 'fen', 'crest', 'nim', 'bramble'];
+/* Colourways and species now live with the genome — one source of truth. */
 
-/** Decompose the four allele values into pet anatomy. All pure bit reads. */
+/**
+ * petOf(alleles) → the portrait of the organism.
+ *
+ * Every field is read from the genome rather than derived a second time.
+ * That is the point: the 3D holo and this 2D portrait are one creature, so
+ * a change to the body plan can never leave the two renderers disagreeing.
+ */
 export function petOf(alleles) {
-  const coat = alleles.coat.value;      // 0–255
-  const voice = alleles.voice.value;    // 0–255
-  const tempo = alleles.tempo.value;    // 0–255
-  const glow = alleles.glow;            // {value, tier, …}
-
-  const coatIdx = coat & 0x0f;
-  const pattern = PATTERNS[(coat >> 4) & 0x03];
-  const speciesIdx = voice & 0x07;
-  const earLift = ((voice >> 3) & 0x03);      // 0–3
-  const tailCurl = ((voice >> 5) & 0x07);     // 0–7
-
-  // Eager pets bob faster. 255 → 0.60s, 0 → 2.60s.
-  const period = (2.6 - (tempo / 255) * 2.0).toFixed(2);
-
-  const [body, belly, coatName] = COATS[coatIdx];
+  const { genome, meta } = genomeOf(alleles);
+  const [form, surface, motion] = genome.layers;
 
   return {
-    species: SPECIES[speciesIdx],
-    coatName, pattern, body, belly,
-    earLift, tailCurl,
-    period: Number(period),
-    tier: glow.tier ? glow.tier.name : 'common',
-    glowHex: glow.hex,
-    // "an ember tuft, striped, with a rare aura"
-    label: `${coatName} ${SPECIES[speciesIdx]}`,
+    species: meta.species,
+    coatName: meta.coatName,
+    pattern: meta.pattern,
+    body: meta.body,
+    belly: meta.belly,
+    earLift: meta.earLift,
+    tailCurl: meta.tailCurl,
+    // Eager organisms bob faster: 255 → 0.60s, 0 → 2.60s. Driven by the same
+    // eagerness the motion layer uses, so portrait and hologram breathe together
+    // — read from `meta` rather than the rounded layer value so the 2D period
+    // keeps its full precision.
+    period: Number((2.6 - meta.eagerness * 2.0).toFixed(2)),
+    tier: meta.tier,
+    glowHex: alleles.glow.hex,
+    // The body plan, carried through so the portrait can hint at it.
+    shape: form.shape,
+    limbs: form.limbs,
+    symmetry: form.symmetry,
+    palette: surface.palette,
+    label: `${meta.coatName} ${meta.species}`,
   };
 }
 
 function patternDefs(p, id, body, belly) {
-  if (p === 'spotted') {
+  if (p === 'spot') {
     return `<pattern id="pat${id}" width="17" height="17" patternUnits="userSpaceOnUse">
       <rect width="17" height="17" fill="${body}"/>
       <circle cx="6" cy="6" r="3.1" fill="${belly}" opacity=".55"/>
       <circle cx="13" cy="13" r="2.1" fill="${belly}" opacity=".4"/></pattern>`;
   }
-  if (p === 'striped') {
+  if (p === 'stripe') {
     return `<pattern id="pat${id}" width="14" height="14" patternUnits="userSpaceOnUse"
               patternTransform="rotate(28)">
       <rect width="14" height="14" fill="${body}"/>
       <rect width="5" height="14" fill="${belly}" opacity=".38"/></pattern>`;
   }
-  if (p === 'patched') {
-    return `<pattern id="pat${id}" width="30" height="30" patternUnits="userSpaceOnUse">
-      <rect width="30" height="30" fill="${body}"/>
-      <path d="M0 0 h16 q5 8 -3 15 q-9 5 -13 -2 Z" fill="${belly}" opacity=".5"/>
-      <path d="M30 30 h-13 q-4 -7 3 -12 q8 -4 10 3 Z" fill="${belly}" opacity=".42"/></pattern>`;
+  if (p === 'glow') {
+    // The player's `glow` pattern is emissive; the portrait reads it as a
+    // soft inner bloom so the same word means the same thing in both views.
+    return `<radialGradient id="pat${id}">
+      <stop offset="0%" stop-color="${belly}" stop-opacity=".95"/>
+      <stop offset="62%" stop-color="${body}"/>
+      <stop offset="100%" stop-color="${body}"/></radialGradient>`;
   }
   return `<pattern id="pat${id}" width="1" height="1"><rect width="1" height="1" fill="${body}"/></pattern>`;
 }

@@ -1,5 +1,6 @@
 import { alleles, rollTail, isTail, TRAITS } from './allele.js';
 import { renderPet, petOf, PET_CSS } from './pets.js';
+import { cartridgeOf, keepsakeUrl, validateCartridge } from './holo.js';
 
 /* pet keyframes live with the renderer so rapp-pets and rappdex can't drift */
 const petStyle = document.createElement('style');
@@ -99,16 +100,18 @@ function draw() {
 
 /* ───────────────────────── pets ───────────────────────── */
 async function showPet(tail) {
-  const stage = $('#petstage'), list = $('#alleles');
+  const stage = $('#petstage'), list = $('#alleles'), cartBox = $('#cartridge');
   if (!isTail(tail)) {
     stage.textContent = '';
+    cartBox.textContent = '';
     list.innerHTML = tail
       ? `<p class="fine">A tail is 64 hex characters. That one is ${tail.trim().length}.</p>`
       : '';
     return;
   }
 
-  const a = await alleles(tail.trim().toLowerCase());
+  const clean = tail.trim().toLowerCase();
+  const a = await alleles(clean);
   const pet = petOf(a);
 
   stage.innerHTML = `
@@ -130,6 +133,101 @@ async function showPet(tail) {
         ? `<span class="tier ${v.tier.name}">${v.tier.name} · ${esc(v.tier.odds)}</span>`
         : `<span class="tier common">${esc(v.hex)}</span>`}`;
     list.appendChild(row);
+  });
+
+  await showCartridge(clean, a, cartBox);
+}
+
+/* ─────────────────────── the cartridge ─────────────────────── */
+/**
+ * The same organism, shown as the hologram genome it actually is.
+ *
+ * Three surfaces, all of them local-first:
+ *   · **Open in 3D** — the whole cartridge rides in the URL *fragment*, which
+ *     browsers never transmit. The player receives the organism without any
+ *     server ever seeing it.
+ *   · **Copy link** — the same fragment link, for handing to someone directly.
+ *   · **Download** — a `.json` cartridge file, playable by any conforming
+ *     player, online or off.
+ *
+ * Nothing here uploads, registers, or phones home.
+ */
+async function showCartridge(tail, a, box) {
+  const cart = await cartridgeOf(tail, a);
+  const problems = validateCartridge(cart);
+
+  // Refuse to offer a malformed organism rather than hand a player something
+  // it would fail to render in a way nobody could diagnose.
+  if (problems.length) {
+    box.innerHTML = `<p class="fine">This genome did not validate: ${esc(problems.join('; '))}</p>`;
+    return;
+  }
+
+  const [form, surface, motion] = cart.genome.layers;
+  const num = (v) => (typeof v === 'number' ? v : '—');
+
+  box.innerHTML = `
+    <h3 class="cart-h">Hologram cartridge</h3>
+    <p class="fine">
+      <code>${esc(cart.schema)}</code> &middot; content address
+      <code>${esc(cart.id)}</code> &mdash; derived from the genome, so an
+      identical organism has an identical id anywhere it is grown.
+    </p>
+    <div class="layers">
+      <div class="layer">
+        <b>form</b>
+        <span>${esc(form.shape)} &middot; ${form.limbs} limbs &middot; ${form.segments} segments</span>
+        <span>${esc(form.symmetry)} &middot; radius ${num(form.body_r)}</span>
+      </div>
+      <div class="layer">
+        <b>surface</b>
+        <span>${esc(surface.pattern)} &middot; glow ${num(surface.glow)}</span>
+        <span class="swatches">${surface.palette.map(c =>
+          `<i style="background:${esc(c)}" title="${esc(c)}"></i>`).join('')}</span>
+      </div>
+      <div class="layer">
+        <b>motion</b>
+        <span>breathe ${num(motion.breathe)} &middot; drift ${num(motion.drift)}</span>
+        <span>pulse ${num(motion.pulse)} &middot; reach ${num(motion.reach)}</span>
+      </div>
+    </div>
+    <div class="row">
+      <a id="play" class="btn" target="_blank" rel="noopener">Open in 3D</a>
+      <button id="copylink" class="btn ghost">Copy link</button>
+      <button id="dlcart" class="btn ghost">Download cartridge</button>
+    </div>
+    <p class="fine" id="cartnote">
+      The link carries the whole organism in its <b>#fragment</b> &mdash; the one
+      part of a URL a browser never sends to a server. The player renders it
+      without anyone hosting it, and your tail is never in it.
+    </p>
+    <details class="verify">
+      <summary>See the genome</summary>
+      <pre>${esc(JSON.stringify(cart, null, 2))}</pre>
+    </details>`;
+
+  const link = keepsakeUrl(cart);
+  $('#play').href = link;
+
+  $('#copylink').addEventListener('click', async () => {
+    const note = $('#cartnote');
+    try {
+      await navigator.clipboard.writeText(link);
+      note.textContent = 'Link copied — it contains the organism itself, not a lookup.';
+    } catch {
+      // Clipboard is gated in some contexts; never leave the user stuck.
+      note.textContent = 'Clipboard blocked. The link is in the genome panel below.';
+    }
+  });
+
+  $('#dlcart').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(cart, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link2 = document.createElement('a');
+    link2.href = url;
+    link2.download = `${cart.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.${cart.id}.json`;
+    link2.click();
+    URL.revokeObjectURL(url);
   });
 }
 

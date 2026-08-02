@@ -104,6 +104,25 @@ pre code{font-family:var(--mono);font-size:12px;line-height:1.6}
 code{font-family:var(--mono);font-size:.92em}
 .fine{font-size:12px;line-height:1.7;color:var(--mut)}
 
+/* ── hologram cartridge ─────────────────────────────────────── */
+.cartridge{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.cart-h{font-family:var(--mono);font-size:11px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--mut);margin:0 0 8px}
+.cartridge code{font-family:var(--mono);font-size:11px;background:var(--tile2);
+  padding:1px 5px;border-radius:4px;color:var(--ink)}
+.layers{display:grid;gap:9px;margin:14px 0 16px}
+.layer{display:grid;gap:3px;padding:12px 14px;background:var(--tile);
+  border:1px solid var(--line);border-radius:10px}
+.layer b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--mut)}
+.layer span{font-size:13px;line-height:1.5}
+.swatches{display:flex;gap:5px;align-items:center;margin-top:3px}
+.swatches i{width:20px;height:20px;border-radius:5px;display:inline-block;
+  border:1px solid var(--line2)}
+.cartridge pre{font-family:var(--mono);font-size:11px;line-height:1.6;max-height:340px;
+  overflow:auto;white-space:pre-wrap;word-break:break-all}
+@media (min-width:640px){ .layers{grid-template-columns:repeat(3,1fr)} }
+
 .word{padding:13px 0;border-bottom:1px solid var(--line)}
 .word b{font-family:var(--mono);font-size:13px}
 .word p{margin:5px 0 0;font-size:14px;line-height:1.55;color:var(--mut)}
