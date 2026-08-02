@@ -2,35 +2,35 @@
   "schema": "rapp-mapp/1.0",
   "document_type": "map",
   "is_registry": false,
-  "authority_note": "This is a MAP, not a registry. It confers no trust, establishes no owner acceptance, and MUST NOT be consumed as a RAPP/1 \u00a713 authenticated registry. A \u00a713 entry requires estate-owner acceptance and signing authority. The protocol authority is kody-w/rapp-1; the governance authority is kody-w/RAPP/CONSTITUTION.md. Where this map and either authority disagree, the authority wins and this map is the defect.",
+  "authority_note": "This is a MAP, not a registry. It confers no trust, establishes no owner acceptance, and MUST NOT be consumed as a RAPP/1 §13 authenticated registry. A §13 entry requires estate-owner acceptance and signing authority. The protocol authority is kody-w/rapp-1; the governance authority is kody-w/RAPP/CONSTITUTION.md. Where this map and either authority disagree, the authority wins and this map is the defect.",
   "supersedes": {
     "repo": "kody-w/rapp-map",
-    "why": "Its ecosystem-spec.json is disposition 'quarantined-candidate' with accepted_as_rapp1_registry false \u2014 it drifted toward claiming registry authority it never had. It also drifted in vocabulary: 544 uses of 'hatch' against 277 of 'plant', while the membrane (Lexicon word 5) appeared 5 times and DOG 4. A map whose words disagree with the Lexicon cannot route anyone correctly."
+    "why": "Its ecosystem-spec.json is disposition 'quarantined-candidate' with accepted_as_rapp1_registry false — it drifted toward claiming registry authority it never had. It also drifted in vocabulary: 544 uses of 'hatch' against 277 of 'plant', while the membrane (Lexicon word 5) appeared 5 times and DOG 4. A map whose words disagree with the Lexicon cannot route anyone correctly."
   },
   "vocabulary": {
-    "source": "kody-w/RAPP/LEXICON.md \u2014 the Nine Words",
+    "source": "kody-w/RAPP/LEXICON.md — the Nine Words",
     "rules": [
       "An organism is a planted being (word 3). The verb is PLANT.",
       "HATCH belongs to eggs (Article L), never to organisms.",
       "The membrane splits every organism exactly once (word 5): BONES public, VAULT private.",
-      "The DOG is the bones walking. The GOD is bones + vault \u2014 the whole that CONTAINS the DOG.",
+      "The DOG is the bones walking. The GOD is bones + vault — the whole that CONTAINS the DOG.",
       "A twin is not an organism (Article XLIX); it is a persistent AI presence.",
-      "A rappid is identity (word 4). A name is never identity \u2014 only a hash is.",
-      "The brainstem is blood, bones and connective tissue \u2014 the living substrate. It is bones; its .brainstem_data/ is vault. No change needed: the grail is the grail."
+      "A rappid is identity (word 4). A name is never identity — only a hash is.",
+      "The brainstem is blood, bones and connective tissue — the living substrate. It is bones; its .brainstem_data/ is vault. No change needed: the grail is the grail."
     ]
   },
   "membrane": {
-    "bones": "Public surfaces. Their exhaust is the DOG \u2014 safe to publish by construction.",
+    "bones": "Public surfaces. Their exhaust is the DOG — safe to publish by construction.",
     "vault": "Private flesh. Local-first, never on a remote. Bones + vault is the GOD.",
     "law": "Public flows down; private never flows on its own (Art. XLVIII, Art. LVI).",
-    "brainstem": "The brainstem is the living substrate \u2014 blood, bones and connective tissue. It is bones-side: the engine, the loader, the wire. Its .brainstem_data/ is vault-side. So a brainstem is already a whole organism across the membrane, and needs no change to fit this pattern. The grail is the grail."
+    "brainstem": "The brainstem is the living substrate — blood, bones and connective tissue. It is bones-side: the engine, the loader, the wire. Its .brainstem_data/ is vault-side. So a brainstem is already a whole organism across the membrane, and needs no change to fit this pattern. The grail is the grail."
   },
   "surfaces": [
     {
       "repo": "kody-w/rapp-1",
       "layer": "protocol",
       "side": "bones",
-      "houses": "RAPP/1 \u2014 identity, canonicalization, the frame, the wire, the egg",
+      "houses": "RAPP/1 — identity, canonicalization, the frame, the wire, the egg",
       "authority": true
     },
     {
@@ -52,7 +52,7 @@
       "repo": "kody-w/rapp-installer",
       "layer": "kernel",
       "side": "bones",
-      "houses": "The grail brainstem \u2014 the immutable kernel bytes",
+      "houses": "The grail brainstem — the immutable kernel bytes",
       "authority": true
     },
     {
@@ -67,7 +67,7 @@
       "repo": "kody-w/openrappter",
       "layer": "membrane",
       "side": "both",
-      "houses": "src/twin/ \u2014 the GOD half (vault at ~/.rapp/twin, outside every repo) + telephony",
+      "houses": "src/twin/ — the GOD half (vault at ~/.rapp/twin, outside every repo) + telephony",
       "authority": false,
       "article": "LVI"
     },
@@ -82,7 +82,7 @@
       "repo": "kody-w/rapp-second-brain",
       "layer": "memory",
       "side": "bones",
-      "houses": "The ecosystem's own two-hemisphere brain \u2014 public face",
+      "houses": "The ecosystem's own two-hemisphere brain — public face",
       "authority": false
     },
     {
@@ -105,7 +105,7 @@
       "side": "bones",
       "houses": "Browser-native brainstem UI. Degradation is the DEFAULT: it runs with no local brainstem at all, because burrowing a grail brainstem needs extra user permissions.",
       "authority": false,
-      "note": "Its API is same-origin by design (API='' on http/https; only file:// falls back to 127.0.0.1:7071), so it talks to whichever brainstem SERVED the page \u2014 parent on 7071, booted twin on 7081+. Served from Pages there is no brainstem (POST /chat -> 405) and it degrades to its browser-only path. A twin is local-first, so in that mode there is correctly NO twin: system_context injects nothing and the agent says how to plant one."
+      "note": "Its API is same-origin by design (API='' on http/https; only file:// falls back to 127.0.0.1:7071), so it talks to whichever brainstem SERVED the page — parent on 7071, booted twin on 7081+. Served from Pages there is no brainstem (POST /chat -> 405) and it degrades to its browser-only path. A twin is local-first, so in that mode there is correctly NO twin: system_context injects nothing and the agent says how to plant one."
     },
     {
       "repo": "kody-w/chat",
@@ -113,8 +113,47 @@
       "side": "bones",
       "houses": "Public bones served from Pages that locate the GOD layer without ever carrying it. Probes loopback for a burrowed brainstem and hands the user through to it.",
       "authority": false,
-      "note": "The membrane made operable. Detection is an opaque no-cors GET: a 403 is an answer, silence is not \u2014 so it never reads a byte, never asks for X-Brainstem-Secret, and never proxies. On a sighting it opens http://localhost:<port>/ where the brainstem serves the same bones same-origin with every guard intact. A signpost, not a bridge. Verified end-to-end in Chrome 131 from the live https page against a real brainstem on 7071.",
+      "note": "The membrane made operable. Detection is an opaque no-cors GET: a 403 is an answer, silence is not — so it never reads a byte, never asks for X-Brainstem-Secret, and never proxies. On a sighting it opens http://localhost:<port>/ where the brainstem serves the same bones same-origin with every guard intact. A signpost, not a bridge. Verified end-to-end in Chrome 131 from the live https page against a real brainstem on 7071.",
       "live": "https://kody-w.github.io/chat/"
+    },
+    {
+      "repo": "kody-w/rappdex",
+      "layer": "navigation",
+      "side": "bones",
+      "houses": "A client over THIS map: a PWA that reads mapp.json live, falls back to a vendored snapshot offline, and derives rapp-allele/1.0 on-device.",
+      "authority": false,
+      "note": "It reads the map, so an unmapped surface is invisible to it. That is why this entry exists — the dex could not previously show itself."
+    },
+    {
+      "repo": "kody-w/kody-w.github.io",
+      "layer": "navigation",
+      "side": "bones",
+      "houses": "A read-only desktop that mounts kody-w.github.io as a public volume (the DOG) and browses it. Lives at OS/ inside the site repo, served at /OS, with /OS/system32 as its internals view.",
+      "authority": false,
+      "note": "Mapped to the repo that actually contains it. There is no kody-w/OS repo — citing one would be a dangling citation, which this map's own test catches.",
+      "path": "OS/"
+    },
+    {
+      "repo": "kody-w/rapp-pets",
+      "layer": "application",
+      "side": "bones",
+      "houses": "The reference client for rapp-allele/1.0 (specified in this repo's ALLELE.md): alleles derived from a mint-once tail, rendered deterministically. Fusion is implemented; the co-signed attestation is not.",
+      "authority": false,
+      "note": "Alleles are computed from the public tail, so they are pure DOG — bones-side by construction, nothing to leak."
+    },
+    {
+      "repo": "kody-w/rapp-vision",
+      "layer": "application",
+      "side": "bones",
+      "houses": "Local-first video. A network of channel.json documents in public repos, streamed from static files; no server, no account, no tracking.",
+      "authority": false
+    },
+    {
+      "repo": "kody-w/rapp-remix",
+      "layer": "application",
+      "side": "bones",
+      "houses": "Replayable cartridges: ship the instructions that produced a recording rather than the pixels, and replay them live at the viewer's resolution.",
+      "authority": false
     }
   ],
   "known_gaps": [
@@ -122,7 +161,7 @@
       "gap": "The Article LVI surfaces are absent from rapp-spine's crawl graph.",
       "status": "open",
       "owner_action": true,
-      "why_not_fixed": "Registration into a \u00a713 registry needs estate-owner signing authority. Self-registering into a quarantined document would be the same false-authority claim that retired rapp-frame-net."
+      "why_not_fixed": "Registration into a §13 registry needs estate-owner signing authority. Self-registering into a quarantined document would be the same false-authority claim that retired rapp-frame-net."
     },
     {
       "gap": "kody-w/rapp-map remains quarantined and is not deleted.",
@@ -133,7 +172,13 @@
       "gap": "Article LVI agents are not published to RAR's @kody-w namespace.",
       "status": "open",
       "owner_action": true,
-      "why_not_fixed": "They satisfy vbrainstem's isLoadableAgent contract (filename + 64-hex sha256) and hot-load correctly into a live brainstem \u2014 verified 14->15 agents with no restart. They are simply not discoverable from RAR yet, and publishing is the owner's to do."
+      "why_not_fixed": "They satisfy vbrainstem's isLoadableAgent contract (filename + 64-hex sha256) and hot-load correctly into a live brainstem — verified 14->15 agents with no restart. They are simply not discoverable from RAR yet, and publishing is the owner's to do."
+    },
+    {
+      "gap": "The 'application' layer is introduced by this commit for client surfaces built on the ecosystem (rapp-pets, rapp-vision, rapp-remix), distinct from the protocol/governance/kernel/membrane/memory/navigation spine.",
+      "status": "open",
+      "owner_action": true,
+      "why_not_fixed": "A map must route to what exists, and five live surfaces were absent from it — including kody-w/rappdex, the client that reads this very file and therefore could not show itself. The layer name is a best reading, not an authority claim; this document is a map and confers none."
     }
   ]
 }

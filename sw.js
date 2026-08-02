@@ -4,7 +4,7 @@
    mapp.json is deliberately NOT cached-first: the dex should track the map
    when it can reach it, and fall back to the vendored snapshot when it can't.
 */
-const VERSION = 'rappdex-v1';
+const VERSION = 'rappdex-v2';
 const SHELL = [
   './',
   './index.html',
