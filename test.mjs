@@ -313,5 +313,60 @@ group('Four organisms become one, honestly');
     `tier drift ${drift.map((d) => (d * 100).toFixed(1) + '%').join(', ')} (must stay under 3%)`);
 }
 
+/* ── 7. the burn ──────────────────────────────────────────────── */
+group('Spending a parent is real, and cheating is provable');
+
+{
+  const F = await import('./fuse.js');
+  const T = (s) => sha(String(s));
+  const P = [T('b1'), T('b2'), T('b3'), T('b4')];
+
+  check('a nullifier is stable', await F.nullifierOf(P[0]) === await F.nullifierOf(P[0]));
+  check('a nullifier leaks nothing about its tail',
+    !(await F.nullifierOf(P[0])).includes(P[0].slice(0, 12)));
+  check('different organisms have different nullifiers',
+    await F.nullifierOf(P[0]) !== await F.nullifierOf(P[1]));
+
+  // The nullifier must NOT be bound to the child, or the same parent could be
+  // spent twice under two different markers and the burn would be theatre.
+  const nA = await F.nullifiersFor(P);
+  const nB = await F.nullifiersFor([P[0], T('other1'), T('other2'), T('other3')]);
+  check('a parent carries the same nullifier into any fusion',
+    nB.includes(nA.find((n) => n === nB.find((m) => m === n)) || '___'),
+    'an unbound nullifier is what makes a double-spend collide');
+
+  const reg = F.spendRegistry();
+  const first = await F.fuseAndBurn(P, reg);
+  check('a fusion burns all four parents', first.spent.length === 4);
+
+  let refused = false;
+  try { await F.fuseAndBurn(P, reg); } catch { refused = true; }
+  check('the same parents cannot be spent twice on this device', refused);
+
+  let partial = false;
+  try { await F.fuseAndBurn([P[0], T('n1'), T('n2'), T('n3')], reg); } catch { partial = true; }
+  check('even ONE already-spent parent blocks a fusion', partial,
+    'a partial re-spend is still a re-spend');
+
+  // A second device never saw the first burn — prevention is impossible there.
+  // Detection is not.
+  const reg2 = F.spendRegistry();
+  const elsewhere = await F.fuseAndBurn([P[0], T('n1'), T('n2'), T('n3')], reg2);
+  const conflicts = F.detectDoubleSpend([first, elsewhere]);
+  check('a cross-device double-spend is caught', conflicts.length === 1, JSON.stringify(conflicts));
+  check('the proof names both children',
+    conflicts[0]?.children.length === 2 &&
+    conflicts[0].children.includes(first.child) &&
+    conflicts[0].children.includes(elsewhere.child));
+  check('an honest set reports nothing', F.detectDoubleSpend([first]).length === 0);
+  check('detection needs no authority, only the two records',
+    typeof F.detectDoubleSpend === 'function' && F.detectDoubleSpend.length === 1);
+
+  // Honesty check: we must NOT claim to know which fusion came first.
+  check('the proof refuses to arbitrate order',
+    !JSON.stringify(conflicts[0]).match(/first|valid|winner|canonical/i),
+    'ordering needs a clock somebody agrees on — that is the authority we lack');
+}
+
 console.log(`\n  ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
