@@ -1,5 +1,9 @@
 # rappdex
 
+<!-- rapp1:network-header:start -->
+[![RAPP/1](https://kody-w.github.io/rapp-hive-public/portfolio/badges/rappdex.svg)](https://github.com/kody-w/rapp-hive-public/blob/main/portfolio/repos/rappdex.md) · **New to RAPP?** [Start here: get your Brainstem →](https://github.com/kody-w/rapp-installer#start-here)
+<!-- rapp1:network-header:end -->
+
 A pocket index of the RAPP ecosystem. Installable, works offline, and derives
 **alleles** and **pets** on-device.
 
